@@ -82,3 +82,26 @@ modifier le code ni le fichier YAML.
 `DOWN` parce qu'elle inclut l'indicateur `movie`, mais c'est le comportement
 voulu : Kubernetes retire alors le Pod des endpoints du Service et ne lui
 envoie plus de trafic, sans redémarrer inutilement le conteneur.
+
+## Partie 3
+
+### Questions de la partie 3.3
+
+**Q3.1** — `pom.xml` est copié avant `src/` afin que Docker puisse réutiliser
+la couche contenant les dépendances Maven tant que le fichier de dépendances
+ne change pas. Si une seule ligne Java est modifiée, seule la copie de `src/`
+et la compilation sont relancées, ce qui accélère la construction de l'image.
+
+**Q3.2** — `-XX:MaxRAMPercentage=75` adapte automatiquement la taille maximale
+du heap à la mémoire réellement disponible dans le conteneur. Contrairement à
+`-Xmx512m`, cette option reste adaptée si la limite mémoire Kubernetes ou
+Compose change, tout en laissant de la mémoire au système et aux autres
+besoins de la JVM.
+
+**Q3.3** — Compose attend que `movie` soit `healthy` avant de démarrer
+`ticket`, mais Kubernetes n'a pas d'équivalent direct à
+`depends_on: condition: service_healthy`. Si les Pods `ticket` démarrent avant
+les Pods `movie`, leurs probes de readiness échouent temporairement : les
+conteneurs restent démarrés, mais les Pods `ticket` ne sont pas ajoutés aux
+endpoints du Service. Dès que `movie` devient disponible, la readiness passe à
+`UP` et le trafic peut être envoyé vers `ticket`.
