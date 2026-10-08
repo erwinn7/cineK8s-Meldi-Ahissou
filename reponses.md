@@ -105,3 +105,131 @@ les Pods `movie`, leurs probes de readiness échouent temporairement : les
 conteneurs restent démarrés, mais les Pods `ticket` ne sont pas ajoutés aux
 endpoints du Service. Dès que `movie` devient disponible, la readiness passe à
 `UP` et le trafic peut être envoyé vers `ticket`.
+
+## Partie 4
+
+### Vérifications de la partie 4.4
+
+Pods déployés dans le namespace `cinema-exam` :
+
+```text
+NAME                          READY   STATUS    RESTARTS   AGE
+movie-59684459f4-85n97        1/1     Running   0          6m
+movie-59684459f4-95g2b        1/1     Running   0          6m
+ticket-66d95c98b6-gm7qv       1/1     Running   0          6m
+ticket-66d95c98b6-qq445       1/1     Running   0          6m
+```
+
+Endpoints des Services :
+
+```text
+NAME     ENDPOINTS
+movie    10.244.0.85:8080,10.244.0.86:8080
+ticket   10.244.0.84:8080,10.244.0.87:8080
+```
+
+Réponse de `movie-service` appelée depuis un Pod `ticket` :
+
+```json
+{
+  "hostname": "movie-59684459f4-85n97",
+  "environment": "kubernetes"
+}
+```
+
+Readiness de `ticket-service` :
+
+```json
+{
+  "status": "UP",
+  "components": {
+    "movie": {
+      "status": "UP"
+    },
+    "readinessState": {
+      "status": "UP"
+    }
+  }
+}
+```
+
+Réservation créée via le port-forward du Service `ticket` :
+
+```json
+{
+  "id": 1,
+  "movieId": 2,
+  "movieTitle": "Le Seigneur des Pods",
+  "seats": 2,
+  "total": 24.00,
+  "createdAt": "2026-10-08T11:20:00.651618112Z"
+}
+```
+
+## Partie 5
+
+### Vérifications de la partie 5.3
+
+Films accessibles via l'Ingress :
+
+```text
+Pod Fiction
+Le Seigneur des Pods
+Docker Wars
+Rollback to the Future
+```
+
+Réservation créée via l'Ingress :
+
+```json
+{
+  "id": 1,
+  "movieId": 3,
+  "movieTitle": "Docker Wars",
+  "seats": 10,
+  "total": 90.00,
+  "createdAt": "2026-10-08T11:25:05.732835416Z"
+}
+```
+
+Hostnames observés dans la boucle :
+
+```text
+movie-59684459f4-85n97
+movie-59684459f4-95g2b
+movie-59684459f4-85n97
+movie-59684459f4-95g2b
+movie-59684459f4-95g2b
+movie-59684459f4-85n97
+```
+
+Le code HTTP obtenu pour `/actuator/health` via l'Ingress est `404`.
+
+### Questions de la partie 5.4
+
+**Q5.1** — Deux Pods `movie` distincts ont répondu. Le Service Kubernetes
+`movie` répartit la charge entre les Pods sélectionnés par le label
+`app: movie`.
+
+**Q5.2** — Avec `pathType: Exact` sur `/api/movies`, seul le chemin exact
+`/api/movies` serait reconnu. `GET /api/movies/1` ne correspondrait pas à la
+règle et retournerait une erreur `404`.
+
+**Q5.3** — Le code HTTP est `404`. C'est souhaitable, car l'Ingress n'expose
+que `/api/movies` et `/api/tickets` ; les endpoints Actuator ne sont pas
+accessibles depuis l'extérieur par cette route.
+
+### Questions de la partie 4.5
+
+**Q4.1** — `kubectl apply -f k8s/` traite les fichiers par ordre
+alphabétique. Les préfixes `00-`, `10-`, `20-` permettent de rendre explicite
+l'ordre logique : namespace, ConfigMaps, Deployments et Services.
+
+**Q4.2** — C'est la `startupProbe` qui est responsable. Ce n'est pas une
+anomalie : elle laisse le temps à Spring Boot de démarrer avant l'activation
+des probes de liveness et de readiness.
+
+**Q4.3** — Avec `imagePullPolicy: Always`, Kubernetes tenterait de télécharger
+`movie-service:1.0.0` et `ticket-service:1.0.0` depuis un registre à chaque
+démarrage. Comme ces images sont locales à Minikube et ne sont pas publiées
+dans un registre, le démarrage échouerait ou resterait en erreur.
