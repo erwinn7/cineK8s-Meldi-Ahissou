@@ -1,4 +1,4 @@
-# Examen CinéK8s — NOM Prénom
+# Examen CinéK8s — Meldi AHISSOU
 
 ## Test automatique pour le professeur
 
@@ -8,13 +8,23 @@ Depuis la racine du projet, le professeur lance une seule commande :
 bash test-professeur.sh
 ```
 
-Le script lance automatiquement le fichier [`test-professeur-tests.sh`](</Users/meldi/Meldi_Save/UNIV/M2DWM/KUBERNETES/TP/cineK8s-Meldi-Ahissou/test-professeur-tests.sh>), qui exécute les vérifications des parties 1 à 5 ainsi que les bonus B1 et B2. Un rapport détaillé est généré automatiquement au format Markdown :
+Le script prépare automatiquement l'environnement : il démarre Minikube si
+nécessaire, active l'addon Ingress, construit les deux images Docker, les
+charge dans Minikube, applique tous les manifests de `k8s/` et attend que les
+Deployments et le contrôleur Ingress soient disponibles. Il lance ensuite le
+fichier [`test-professeur-tests.sh`](</Users/meldi/Meldi_Save/UNIV/M2DWM/KUBERNETES/TP/cineK8s-Meldi-Ahissou/test-professeur-tests.sh>), qui exécute les vérifications des parties 1 à 5 ainsi que les bonus B1 et B2. Le professeur n'a donc pas à exécuter de commande Kubernetes supplémentaire.
+
+Un rapport détaillé est généré automatiquement au format Markdown :
 
 ```text
 rapport-professeur.md
 ```
 
-Le rapport contient la date, le résultat de chaque test et un tableau récapitulatif des succès et des échecs. Prérequis : Docker Desktop, Minikube, `kubectl`, `docker`, `docker compose`, `curl` et `jq` doivent être disponibles. Le script ne supprime pas les ressources Kubernetes ; il arrête uniquement son port-forward et ses conteneurs Compose temporaires.
+Le rapport contient la date, les commandes de préparation, le résultat de
+chaque test et un tableau récapitulatif des succès et des échecs. Les seuls
+prérequis sont Docker Desktop démarré, ainsi que `minikube`, `kubectl`, `curl`
+et `jq` installés. Le script ne supprime pas les ressources Kubernetes ; il
+arrête uniquement son port-forward et ses conteneurs Compose temporaires.
 
 ## Partie 1
 

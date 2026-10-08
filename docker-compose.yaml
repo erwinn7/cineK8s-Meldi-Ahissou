@@ -3,7 +3,7 @@ services:
   movie:
     build: ./movie-service
     image: movie-service:1.0.0
-    ports: ["8080:8080"]
+    ports: ["${MOVIE_PORT:-8080}:8080"]
     environment:
       MOVIE_ENVIRONMENT: compose
     healthcheck:
@@ -14,7 +14,7 @@ services:
   ticket:
     build: ./ticket-service
     image: ticket-service:1.0.0
-    ports: ["8082:8080"]
+    ports: ["${TICKET_PORT:-8082}:8080"]
     environment:
       MOVIE_URL: http://movie:8080
     depends_on:
