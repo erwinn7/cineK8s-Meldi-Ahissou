@@ -2,7 +2,7 @@
 
 ## Partie 1
 
-**Q1.1** — `MovieClient` lit la propriété Spring `movie.url`, grâce à
+**Q1.1** — `MovieClient` lit la propriété Spring `movie.url`, grâce à 
 `@Value("${movie.url}")`. La variable d'environnement `MOVIE_URL` est utilisé
 pour la surcharger .
 
@@ -33,5 +33,4 @@ communication et provoquerait des redémarrages inutiles.
 | `/actuator/health/liveness` | `startupProbe` et `livenessProbe` | Kubernetes redémarre le conteneur après les seuils d'échec configurés. |
 | `/actuator/health/readiness` | `readinessProbe` | Kubernetes retire le Pod des endpoints du Service, sans redémarrer le conteneur. |
 
-Lors d'un rolling update, `server.shutdown: graceful` permet de laisser
-terminer les requêtes en cours avant l'arrêt du Pod.
+Lors d'un rolling update, `server.shutdown: graceful` permet de laisser terminer les requêtes en cours avant l'arrêt du Pod.
